@@ -1,0 +1,18 @@
+# Run the following to compile:
+# 	make -f make_lollipop lollipop-test 
+# Requires a ../bin directory
+
+CXX=g++
+
+CXXFLAGS=-std=c++20 -O2 -Wall -fsanitize=address
+DEPS = lollipop.h
+
+lollipop.o: lollipop.cpp $(DEPS)
+	$(CXX) -c -o ../bin/$@ $< $(CXXFLAGS)
+
+lollipop-soln.o: soln.cpp soln.h $(DEPS)
+	$(CXX) -c -o ../bin/$@ $< $(CXXFLAGS)
+
+lollipop-test: lollipop.o lollipop-soln.o
+	$(CXX) -o ../bin/$@ ../bin/lollipop.o ../bin/lollipop-soln.o \
+	test_lollipop.cpp $(CXXFLAGS)

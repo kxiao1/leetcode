@@ -1,0 +1,19 @@
+# Run the following to compile:
+# 	make -f makeFancyPairs fancy_pairs.out
+# then execute with ./fancy_pairs.out
+
+CC=gcc
+CXX=g++
+
+CFLAGS=-O2 -Wall
+CXXFLAGS=-O2 -Wall
+DEPS = tree.h
+
+fancy_pairs.o: fancy_pairs.cpp $(DEPS)
+	$(CXX) -c -o $@ $< $(CXXFLAGS)
+
+top-down-splay.o: top-down-splay.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+fancy_pairs.out: fancy_pairs.o top-down-splay.o
+	$(CXX) -o $@ $^ $(CXXFLAGS)
