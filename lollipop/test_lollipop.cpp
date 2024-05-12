@@ -1,8 +1,8 @@
 #include <cassert>
 #include <iostream>
 
+#include "lollipop.h"
 #include "soln.h"
-
 void test_lollipop_impl(int tot_size, int loop_size) {
     Lollipop l(tot_size, loop_size);
     void *p = l.head();

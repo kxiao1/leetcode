@@ -4,8 +4,9 @@
 
 CXX=g++
 
-CXXFLAGS=-std=c++20 -O2 -Wall -fsanitize=address
-DEPS = lollipop.h
+# -fmodules-ts will work when modules work...
+CXXFLAGS=-std=c++20 -O2 -Wall -fmodules-ts -fsanitize=address
+DEPS = linked_list.h lollipop.h
 
 lollipop.o: lollipop.cpp $(DEPS)
 	$(CXX) -c -o ../bin/$@ $< $(CXXFLAGS)

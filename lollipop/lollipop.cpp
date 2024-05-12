@@ -1,5 +1,6 @@
 #include "lollipop.h"
 
+// import <iostream>; has to work before we can export this as a module
 #include <iostream>  // otherwise size_t and std::move are not defined
 
 Lollipop::Lollipop(int total_size, int loop_size) {
@@ -41,6 +42,9 @@ Lollipop &Lollipop::operator=(Lollipop &&other) {
 
 Lollipop::~Lollipop() { delete[] list; }
 
-void *Lollipop::head() { return static_cast<void *>(list); }
-void *Lollipop::move(void *ptr) { return *static_cast<void **>(ptr); }
-void Lollipop::make_next(void *curr, void *next) { *static_cast<void **>(curr) = next; }
+void *Lollipop::head() const { return static_cast<void *>(list); }
+void *Lollipop::move(void *ptr) const { return *static_cast<void **>(ptr); }
+
+void Lollipop::make_next(void *curr, void *next) {
+    *static_cast<void **>(curr) = next;
+}

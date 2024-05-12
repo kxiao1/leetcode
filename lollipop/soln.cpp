@@ -10,7 +10,7 @@ struct Solution::c_ptr {
     operator bool() const { return ptr != nullptr; }
 };
 
-Solution::Solution(Lollipop &ll) : l(ll) {}
+Solution::Solution(LinkedList &ll) : l(ll) {}
 
 int Solution::solve() {
     c_ptr slow_ptr{l.head()}, fast_ptr{l.head()};

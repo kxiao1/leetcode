@@ -1,12 +1,14 @@
-#include "lollipop.h"
+#include "linked_list.h"
+
+/* Task: Find the length of a singly linked list ll.*/
 class Solution {
    public:
-    Solution(Lollipop &ll);
+    Solution(LinkedList &ll);
     int solve();
 
    private:
-    // alternatively store value and call move constructor
-    Lollipop &l;  // borrow the same lollipop
+    // We could also move and store ll as a value if LinkedList weren't virtual
+    LinkedList &l;  // borrow the same list
 
     struct c_ptr;
     bool move_fast(c_ptr &f);
