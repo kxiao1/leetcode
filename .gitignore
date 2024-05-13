@@ -6,6 +6,7 @@
 **/bin
 **/build
 **/__pycache__
+**/gcm.cache/
 
 # Java
 *.class

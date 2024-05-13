@@ -1,5 +1,5 @@
-#include "linked_list.h"
-
+// #include "linked_list.h"
+import linked_list;
 /* A minimal singly linked list. It is called a lollipop because the list can
  * have at most one loop that does not extend beyond the intersection.*/
 class Lollipop : public LinkedList {

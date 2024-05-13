@@ -2,18 +2,26 @@
 # 	make -f make_lollipop lollipop-test 
 # Requires a ../bin directory
 
+# Reference: https://stackoverflow.com/questions/16878295/how-do-makefile-dependencies-work
+
 CXX=g++
 
-# -fmodules-ts will work when modules work...
+# -fmodules-ts is needed when modules work...
 CXXFLAGS=-std=c++20 -O2 -Wall -fmodules-ts -fsanitize=address
-DEPS = linked_list.h lollipop.h
+DEPS = linked_list.o # maybe not optimal
 
-lollipop.o: lollipop.cpp $(DEPS)
+linked_list.o: linked_list.cpp
+	$(CXX) -c -o ../bin/$@ $< $(CXXFLAGS)
+
+lollipop.o: lollipop.cpp lollipop.h $(DEPS)
 	$(CXX) -c -o ../bin/$@ $< $(CXXFLAGS)
 
 lollipop-soln.o: soln.cpp soln.h $(DEPS)
 	$(CXX) -c -o ../bin/$@ $< $(CXXFLAGS)
 
-lollipop-test: lollipop.o lollipop-soln.o
-	$(CXX) -o ../bin/$@ ../bin/lollipop.o ../bin/lollipop-soln.o \
-	test_lollipop.cpp $(CXXFLAGS)
+lollipop-test: test_lollipop.cpp lollipop.o lollipop-soln.o
+	$(CXX) -o ../bin/$@	$< \
+	../bin/lollipop.o ../bin/lollipop-soln.o ../bin/linked_list.o $(CXXFLAGS)
+
+clean:
+	rm -r gcm.cache ../bin/linked_list.o ../bin/lollipop*

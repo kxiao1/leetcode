@@ -1,4 +1,5 @@
-#include "linked_list.h"
+// #include "linked_list.h"
+import linked_list;
 
 /* Task: Find the length of a singly linked list ll.*/
 class Solution {

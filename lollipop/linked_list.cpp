@@ -1,7 +1,8 @@
-#pragma once  // to be solved by C++20+ modules
+// #pragma once  // not used if compiles as a cpp file with C++20 modules
 
+export module linked_list;
 /* Linked list interface. */
-class LinkedList {
+export class LinkedList {
    public:
     // virtual destructor
     virtual ~LinkedList() = default;
