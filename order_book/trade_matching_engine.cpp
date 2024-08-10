@@ -7,7 +7,24 @@
 #include <tuple>
 #include <variant>
 
-/* Proof of concept solution with trees */
+/* Proof of concept solution with trees, otherwise imitating the python code */
+struct Order {
+    std::string client_id;
+    int size;
+};
+
+// Experimental!! https://en.cppreference.com/w/cpp/iterator/iterator_tags
+// I guess the more the better...
+// Also, "The definition of a concept must appear at namespace scope."
+template <typename T>
+concept OrderBook = std::bidirectional_iterator<typename T::iterator> &&
+                    std::same_as<typename T::key_type, double> &&
+                    std::predicate<typename T::key_compare, double, double> &&
+                    // or std::same_as<typename T::mapped_type, queue<Order>
+                    std::same_as<typename T::mapped_type::value_type, Order> &&
+                    requires(T::mapped_type t) {
+                        { t.front() } -> std::same_as<Order&>;
+                    };
 class Engine {
    public:
     void match() {
@@ -23,28 +40,26 @@ class Engine {
             // const_reverse_iterator, map<_, _, greater> != map<_, _, less>)
             // makes it hard to implement the Python my_book, other_book hack
             // std::variants don't work: must call std::get<typename> before use
-            // So it's templates to the rescue!!
+            // So either abstract out the template args of 'bids' and 'offers',
+            // or define a "OrderBook" concept and auto the rest out!
             if (bs == 'b') {
-                fill_order<std::less<double>, std::greater<double>>(
-                    px, tot_size, time, client_id, bs, offers, bids);
+                fill_order(px, tot_size, time, client_id, bs, offers, bids);
             } else {
-                fill_order<std::greater<double>, std::less<double>>(
-                    px, tot_size, time, client_id, bs, bids, offers);
+                fill_order(px, tot_size, time, client_id, bs, bids, offers);
             }
+
+            // Experimental! We can do the same 'if' but now without templates.
+            fill_order_test(px, tot_size, time, client_id, bs, bids, offers);
         }
     }
 
    private:
-    struct Order {
-        std::string client_id;
-        int size;
-    };
     std::map<double, std::queue<Order>, std::greater<double>> bids;  // decr
     std::map<double, std::queue<Order>, std::less<double>> offers;   // incr
 
     template <typename OtherCmp, typename MyCmp>
-        requires std::predicate<OtherCmp, double, double> &&
-                 std::predicate<MyCmp, double, double>
+    // requires std::predicate<OtherCmp, double, double> &&
+    // std::predicate<MyCmp, double, double> // implied by std::map<double...>
     void fill_order(double my_price, int my_size, std::string time,
                     std::string client_id, char bs,
                     std::map<double, std::queue<Order>, OtherCmp>& other_book,
@@ -62,15 +77,15 @@ class Engine {
             if (my_size <= 0 || worse_cmp(my_price, level_price)) {
                 break;
             }
-            while (my_size > 0 && level.size() > 0) {
-                Order& od{level.top()};
+            while (my_size > 0 && orders.size() > 0) {
+                Order& od{orders.front()};
                 int size_filled{std::min(my_size, od.size)};
                 print_trade(time, client_id, od.client_id, bs, level_price,
                             size_filled);
                 my_size -= size_filled;
                 od.size -= size_filled;
-                if (od.size() == 0) {
-                    level.pop();
+                if (od.size == 0) {
+                    orders.pop();  // we remove a filled order
                 }
             }
         }
@@ -79,6 +94,15 @@ class Engine {
             // less code than auto [it, _] = my_book.insert_or_assign(...)
             my_book[my_price].emplace(client_id, my_size);
         }
+    }
+
+    // Again, Experimental
+    bool fill_order_test(double my_price, int my_size, std::string time,
+                         std::string client_id, char bs,
+                         OrderBook auto other_book, OrderBook auto my_book) {
+        typename decltype(other_book)::key_compare worse_cmp;
+        // This shows that everything else in fill_order should work
+        return worse_cmp(other_book.begin()->first, 0);
     }
 
     std::tuple<std::string, std::string, char, int, char, double> parse_order(

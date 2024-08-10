@@ -84,7 +84,8 @@ def solve():
         if order_type == "m" or tot_size == 0:
             continue
 
-        # insert into my book, "while ()" is slightly shorter than "for level in my_book:"
+        # Update my_book with "insertion sort"
+        # "while ()" is slightly shorter than "for level in my_book:"
         insertion_idx = 0
         my_od = Order(client_id, tot_size)
         while insertion_idx < len(my_book) and worse_cmp(px, my_book[insertion_idx].price):
