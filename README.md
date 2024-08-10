@@ -8,16 +8,20 @@ Most of the earlier code was written in Python with a little Java. Newer solutio
 
 ## Contents
 ### The 'Big 3'
-- **codility**: Their free practice problems
+- **codility**: only free practice problems
 - **hackerrank**: contains both practice and assessment problems
-- **leetcode**: identified by problem number
-- **order_book**: quintessential part of trading systems, and a (long) HackerRank coding challenge
+- **leetcode**: identified by problem number, some with official (paywalled) solutions
 
 ### Others
 - **fancy_pairs**: supposedly a "Leetcode-hard" problem that made its way into and out of a group chat
 - **lollipop**: heard from a brilliant friend who also provided the solution to **fancy_pairs**
+- **order_book**: quintessential project for trading and spin-off from a (long) HackerRank coding challenge
 - **probability**: combinatorial solutions and simulations (some inspired by real life)
 - **tcp_over_udp**: adapted from an actual interview
+- **misc**: 
+    - aad.py: ["Adjoint Algorithmic differentiation"](https://en.wikipedia.org/wiki/Automatic_differentiation), actually just glorified [backpropagation](https://en.wikipedia.org/wiki/Backpropagation)
+    - hamming.py: Cool use of Python generators to efficiently compute [Hamming numbers](https://en.wikipedia.org/wiki/Regular_number#Algorithms)
+
 
 ### Miscellaneous (without code)
 - Coin flipping: https://www.quora.com/A-fair-coin-is-tossed-S-0-For-every-head-that-appears-1-is-added-to-S-and-for-every-tail-1-is-subtracted-from-S-The-game-terminates-when-S-1-What-is-the-expected-number-of-tosses-for-this-game-What-is-the-probability-that-the-game-never-terminates
