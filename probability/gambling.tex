@@ -77,24 +77,27 @@
 \begin{document}
 
 \section*{Introduction}
-Many problems about finding the expected number of turns required to get some outcome can be solved by imagining a gambling game at the casino. Of course, this is nothing more than the \href{https://www.quantstart.com/articles/The-Markov-and-Martingale-Properties/}{martingale method}, with obvious applications to the modelling of asset prices and so on. 
-However, I wanted to find more intuitive explanations than searching for the martingale $M_n$, or in continuous time, $(M_t)$. Along the way I'll cover the famous \href{https://martingalemeasure.wordpress.com/2014/02/02/monkey-typing-abracadabra-14/}{ABRACADABRA problem} and a few other problems I've encountered in interviews and in discussions with peers.
+Many quant interviews ask for the expected number of coin tosses, die rolls, or other random trials before getting some outcome. One popular method of solving this type of problems is by constructing a \emph{martingale process} $M_n$, or in continuous time $(M_t)$. Not only are such solutions short, but \href{https://www.quantstart.com/articles/The-Markov-and-Martingale-Properties/}{martingale methods} also underpin the theoretical modelling of asset prices.
+
+One hopefully intuitive way of explaining why those solutions work is to frame the problems as gambling games at the casino. Interpreting the abstract processes as a series of logical real-life strategies gives more meaning to the numbers while performing essentially the same calculations. Having read some resources and worked through a few problems by myself, I wanted to informally illustrate the technique with a few small examples relating to \emph{discrete} processes. One of them is the famous \href{https://martingalemeasure.wordpress.com/2014/02/02/monkey-typing-abracadabra-14/}{ABRACADABRA problem}, while others come from interviews, friends, and other casual settings.
+
 
 \tableofcontents
 \newpage
 
 \section{Basic Idea}
-Assume we are asked for some expected number of rounds (i.e. we are in the discrete world). There are three steps to transforming the math problem into a gambling scenario:
+Assume we want the expected number of rounds $N$ (i.e. we are in the discrete world) to attain some outcome or one of a set of outcomes. Three steps transform math problem into a gambling scenario:
 
 \begin{enumerate}
-\item Devise a fair betting game. For every \$1 put in, a player should expect to win \$1 in expectation, so that his expected return is \$0. 
-\item Make the player invest an additional \$1 every round, so that his expected winnings grow by \$1 every round as well. Note that how he bets with his accumulated winnings, if any, does not affect the expected outcome because this money is already in the system. Because the game is fair, the expected winnings should equal the total investment. Using only the money put in at the start is known in Finance as a \href{https://math.stackexchange.com/questions/1828876/definition-of-self-financing-strategy}{self-financing strategy}, but I digress.
-\item Since how one bets doesn't matter, make him bet in such a way that when the game ends (i.e. when an outcome is reached), we know how much money he has made just by knowing how many rounds the game has been played. Oftentimes, the terminal winnings need not even depend on the amount of the time.
+\item Devise a fair betting game on the casino's behalf. For every \$1 put in, a player should expect to win \$1 in expectation, so that his expected return (winnings minus investment) is \$0. 
+\item Imagine a player that invests an \emph{additional} \$1 every round, so that his expected winnings grow by \$1 every round as well. Note that how he bets with his existing chips, if any, does not affect his expected earnings because the game is fair. In other words, only by putting more money in the system can his chip count grow. The alternative of using only the money put in at the start is known in Finance as a \href{https://math.stackexchange.com/questions/1828876/definition-of-self-financing-strategy}{self-financing strategy}, but I digress.
+\item Since how one bets doesn't matter, choose a betting strategy such that when the game ends (i.e. when a desired outcome is reached), we know how much money he has made just by knowing how many rounds the game has been played. Oftentimes, the terminal winnings need not even depend on the amount of the time.
 \end{enumerate}
 
-Now for a bit of math. If we call this ``stopping time'' $\tau$ ($\tau \in \N$) and the terminal winnings $W_\tau$, then $M_n := W_n - n$ is a martingale and $\E(W_\tau - \tau) = \E(M_\tau) = M_0 = W_0 - 0 = 0$ by the \href{https://en.wikipedia.org/wiki/Optional_stopping_theorem}{Optional Sampling Theorem}. If $W_\tau$ depends on the outcome $\omega$ but not on $\tau$, we just need to compute $\E(W_\tau) = \E(\tau)$.
+Now for a bit of math. If we denote this ``stopping time'' by $\tau$ ($\tau \in \N$) and the terminal winnings by $W_\tau$, then $M_n := W_n - n$ is a martingale and $\E(W_\tau - \tau) = \E(M_\tau) = M_0 = W_0 - 0 = 0$ by the \href{https://en.wikipedia.org/wiki/Optional_stopping_theorem}{Optional Sampling Theorem}. If $W_\tau$ depends on the outcome $\omega$ but not on $\tau$, $\E(W_\tau)$ does not contain $\tau$ so go ahead and find $\E(W_\tau) = \E(\tau)$ directly.
 
-Otherwise, if $W_\tau = g_\omega(\tau)$ where $g$ is linear regardless of the outcome $\omega$, then $\E(W_\tau) = \E_\omega(\E(W_\tau \mid \omega)) = \E_\omega(\E(g_\omega(\tau)\mid\omega)) = \E_\omega(g_\omega(\E(\tau\mid \omega)))$. If we are lucky, we will be able to use $\E(\tau) = \E_\omega(\E(\tau \mid \omega))$ to write $\E(W_\tau) = f(\E(\tau))$ for some $f$. To finish, solve $\E(W_\tau) = f(\E(\tau)) = \E(\tau)$ for $\E(\tau)$.
+Otherwise, $W_\tau$ depends on $\tau$ and we have more work to do. However, if for each of $n$ possible outcomes $\omega \in \Omega$ we can find \emph{linear} functions \{$g_X(\tau)$\} indexed by $X: \Omega \rightarrow [n]$ to represent $W_\tau$ in terms of $\tau$, then $$\E(W_\tau) = \E_X(\E(W_\tau \mid X)) = \E_X(\E(g_X(\tau)\mid X)) = \E_X(g_X(\E(\tau\mid X)))$$
+Next, try applying the law of total expectation $\E(\tau) \equiv \E_X(\E(\tau \mid X))$ to yield $\E(W_\tau) = f(\E(\tau))$ for some function $f$. Lastly, solve $\E(W_\tau) = f(\E(\tau)) = \E(\tau)$ for $\E(\tau)$.
 
 There are a few technicalities that need to be established, for instance the fact that $E(\tau) < \infty$ (as mentioned in the Wikipedia article and Problem 3.8 of \cite{joshi2008quant}). Since it is usually not too hard to show that all games end relatively quickly (e.g. by showing that the probability that the $N+1$th round is played decreases faster than $N$ itself), I will skip this step for brevity.
 
@@ -104,10 +107,10 @@ There are a few technicalities that need to be established, for instance the fac
 What is the expected number of fair coin tosses required to get $N$ heads in a row? The idea here is the same as the ABRACADABRA problem, which I discuss right after.
 
 \subsection{Alternative Solutions}
-As we toss the coins, we are actually jumping between ``states" here ($0$, $1$, $2$ consecutive heads etc.), with the end state being $N$ heads and the probability of going to any other state depending only on our current state. Thus, this and all subsequent problems can all be represented as \href{https://en.wikipedia.org/wiki/Markov_chain}{Markov Chains}. Before introducing the martingale solution, I present two other solutions that work with the Markov Chain directly without requiring any knowledge of gambling or martingales. I think they both have their respective merits for this relatively tractable problem.
+As we toss the coins, we are actually jumping between ``states" here ($0$, $1$, $2$ consecutive heads etc.), with the end state being $N$ heads and the probability of going to any other state depending only on our current state. Thus, this and all subsequent problems can all be represented as \href{https://en.wikipedia.org/wiki/Markov_chain}{Markov Chains}. Before applying the gambling methodology, I present two other solutions that work with the Markov Chain directly without requiring any knowledge of gambling or martingales. In my opinion, they both merit a mention for this relatively tractable problem.
 
 \subsubsection{Direct summation}
-Suppose we start with a hot streak of $k < N$ heads before hitting the first tail. Then those first $k+1$ tosses were wasted and we are back to square 1. We denote by $X$ the expected number of rolls required from this starting state, which is just $\E(\tau)$. However, if $k=N$ (with probability $p=\frac{1}{2^N}$), then we are done. Therefore,
+Suppose we start with a hot streak of $0 \leq k < N$ heads before hitting the first tail. Then those first $k+1$ tosses were wasted and we are back to square 1. We denote by $X$ the expected number of rolls required from this starting state, which is just $\E(\tau)$ itself. However, if $k=N$ (with probability $p=\frac{1}{2^N}$), then we are done. Therefore,
 \begin{align*}
 X &= \frac{1}{2} \times (X+1) + \frac{1}{2^2} \times (X+2) + \frac{1}{2^3} \times (X+3) + \dots + \frac{1}{2^N} \times (X+N) + \frac{N}{2^N}\\
 &= \left(\sum_{k=1}^{N}\frac{1}{2^k}\right)X + \underbrace{\sum_{k=1}^{N}\frac{k}{2^k}}_{S} + \frac{N}{2^N} \\
@@ -117,7 +120,7 @@ X &= \frac{1}{2} \times (X+1) + \frac{1}{2^2} \times (X+2) + \frac{1}{2^3} \time
 \end{align*}
 where $S$ can be evaluated as follows:
 \begin{align*}
-S&:= \frac{1}{2} + \frac{2}{4} + \frac{3}{8} + \dots + \frac{N}{2^N} \\
+S&:= \frac{1}{2} + \frac{2}{4} + \frac{3}{8} + \dots + \frac{N-1}{2^{N-1}} + \frac{N}{2^N} \\
 \implies 2S &= 1 + \frac{2}{2} + \frac{3}{4} + \dots + \frac{N}{2^{N-1}} \\
 \implies S &= 2S - S \\
 &=1 + \frac{1}{2} + \frac{1}{4} + \dots \frac{1}{2^{N-1}} - \frac{N}{2^N} \\
@@ -126,19 +129,24 @@ S&:= \frac{1}{2} + \frac{2}{4} + \frac{3}{8} + \dots + \frac{N}{2^N} \\
 \end{align*}
 
 \subsubsection{Step-by-step}
-Instead of unrolling everything, let us define $C_k$ to be the number of coin tosses to get $k$ heads in a row and $Y_k$ ($k \geq 1$) the number of extra tosses to get the last head \emph{when we already have $k-1$ consecutive heads}. Then $Y$ is either $1$ or $1 + C_k$, each with probability $\frac{1}{2}$. Thus, 
+Instead of unrolling everything, let us define $(C_k)_{k\geq 0}$ to be the number of coin tosses to get $k$ heads in a row. For $k \geq 1$ when we already have $k-1$ consecutive heads, the number of extra tosses to get the last headis either $1$ or $1 + C_k$, each with probability $\frac{1}{2}$. In other words, 
+\begin{equation*}
+\left\{ \begin{aligned} 
+  C_0 &= 0 \\
+  C_{k+1} &= C_k + \frac{1}{2}(1) + \frac{1}{2}(1+C_{k+1})
+\end{aligned} \right.
+\end{equation*}
+Therefore,
 \begin{align*}
-C_0 &= 0 \\
-C_{k+1} &= C_k + \frac{1}{2}(1) + \frac{1}{2}(1+C_{k+1}) \\
-\implies C_{k+1} &= 2C_k + 2 \\
-\implies E(\tau) = C_N &= \underbrace{2(2(2(\dots ((0) + 2) + \dots )+ 2)+2)+2}_{N * 2's} \\
+C_{k+1} &= 2C_k + 2 \\
+E(\tau) = C_N &= \underbrace{2(2(2(\dots ((0) + 2) + \dots )+ 2)+2)+2}_{N \, 2's} \\
 &= (2^{N+1} - 1) - 1 \\
 &= \boxed{2^{N+1} - 2}
 \end{align*}
 From $C_{k+1} = 2C_k+2$ an easy proof by induction also suffices.
 
 \subsection{Solution by gambling}
-Follow the three-step framework above. First, the casino pays \$2 for correctly calling the toss (either $H$ or $T$) and nothing otherwise to make things fair. Since we just want $N$ heads in total, we always bet on $H$ and in each round we put all our money in it - both our accumulated winnings and the extra \$1 we invested in this round. Now, when the game ends, we have the \$2 we made off the last \$1 investment, the \$4 that compounded twice from the second last round, all the way to the \$$2^N$ from $N-1$ rounds ago. Thus
+Follow the three-step framework above. First, the casino pays \$2 for correctly calling the toss (either $H$ or $T$) and nothing otherwise to make things fair. Since we just want $N$ heads in total, we always bet on $H$ and in each round we put all our money in it - all accumulated winnings and the extra \$1 we invested in this round. Now, when the game ends, we have the \$2 we made off the last \$1 investment, the \$4 that compounded twice from the second last round, all the way to the \$$2^N$ from $N-1$ rounds ago. Thus
 \begin{align*}
 \E(\tau) = \E(W_\tau) = W_\tau &= 2^N + 2^{N-1} + \dots + 2 \\
 &= 2\times(2^{N-1} + \dots 1) \\
@@ -148,20 +156,20 @@ Follow the three-step framework above. First, the casino pays \$2 for correctly 
 The second equality follows because $W_\tau$ here is deterministic.
 
 \section{ABRACADABRA}
-Instead of wanting heads, we now want the expected time it takes to draw the 11 characters $$\text{``ABRACADABRA''}$$ randomly and in that order from the English alphabet of length 26. To be clear, we imagine spinning a customized ``roulette wheel'' with 26 pockets labelled ``A'' to ``Z'' as many times as needed.
+Instead of merely getting heads, we now want the expected time it takes to draw the 11 characters $$\text{``ABRACADABRA''}$$ randomly and in that order from the English alphabet of length 26. To be clear about what ``randomly'' means, we should imagine spinning a customized ``roulette wheel'' with 26 pockets labelled ``A'' to ``Z'' as many times as needed.
 
-More ambitiously, we can ask \href{https://en.wikipedia.org/wiki/Infinite_monkey_theorem}{how long it takes for monkeys to type Shakespeare} on a typewriter, where each character is picked randomly and independent of all previous characters.
+More ambitiously, we can ask \href{https://en.wikipedia.org/wiki/Infinite_monkey_theorem}{how long it takes for monkeys to type Shakespeare} on a typewriter, where each character is picked randomly and independent of all previous characters. As we shall see, this notion of randomness can be counter-intuitive.
 
 \subsection{The classic solution}
 \textit{The numbers at the end are exactly the same as those found all over the internet, but I try to give a different explanation.}
 
 For this game, the casino pays \$26 for every correct bet on the next character and \$0 otherwise. As before, invest an extra \$1 each round, but according to the following gambling strategy.
-Instead of betting on the same thing with all our accumulated winnings, we will separate them into different pools (or ``threads'' in the terminology of computer science) based on when they were invested. If that money was just invested, put it on ``A''. If it was invested one round ago (on the ``A'') and we indeed got an ``A'', then put the \$26 on ``B'' now. The third most recent pool, if it's still alive, puts all \$$26^2$ in ``R'', and so on.
+Instead of betting on the same thing with all our accumulated winnings, we will separate them into different pools (or ``threads'' in the terminology of computer science) based on when they were invested. If that money was just invested, put it on ``A''. If it was invested one round ago (on the ``A'') and is still here (because an ``A'' showed up), then put the \$26 on ``B'' now. The third most recent pool, if it's still alive, puts all \$$26^2$ in ``R'', and so on.
 
 Another way to think about this is imagining a new gambler join the game each round trying to create the 11-character sequence, leaving once he goes bust (in fact this is how I was initially taught). The bottom line is that each pool or thread or substrategy or gambler doesn't care about what the other guys have made thus far. 
 (\textit{Note also that the $N$ heads problem is a special case of this betting strategy in which all threads make the same bet each turn.})
 
-Each such thread has a maximum length of 11, because that's when the game ends. That lucky thread makes \$$26^{11}$ for getting all the characters right. However, not all threads survive. A thread dies once the wrong character shows up becuase it always goes all in. Of course, any string of characters can show up but we are only interested in the last 11 when the game finally ends, which we know to be ``ABRACADABRA''. At this point, all threads are between 1 and 11 rounds old and we compare their betting histories with the actual outcome. Some characters below are struck out because they represent the busted threads' last bet and what they \emph{would have} bet on subsequently:
+Each such thread has a maximum length of 11, because that's when the game ends. That lucky thread makes \$$26^{11}$ for getting all the characters right. However, not all threads survive. A thread dies once the wrong character shows up becuase it always goes all-in. Of course, any string of characters can show up but we are only interested in the last 11 when the game finally ends, which we know to be ``ABRACADABRA''. At this point, all threads are between 1 and 11 rounds old and we compare their betting histories with the actual outcome. Some characters below are struck out because they represent the busted threads' last bet and what they \emph{would have} bet on subsequently:
 \begin{center}
   \begin{tabular}{ |r|c| } 
    \hline
@@ -186,23 +194,23 @@ Again, $W_\tau$ is deterministic. Therefore, we sum the column up to get
 \end{align*}
 
 \subsection{What if people change strategies midway?}
-The solution above is repeated nearly verbatim throughout the internet. What if we don't follow that strategy to the tee? Suppose when \textit{ABRACADABR} has come up (i.e. we are missing the final ``A''), we put all our money on ``A'' for what may be the final round. That will mean a different terminal payoff if ``A'' does show up, right?
+The solution above is repeated nearly verbatim throughout the internet. After reading a few versions, the skeptic in me asked: \emph{What if we don't follow that strategy to the tee?} Suppose when ``ABRACADAB'' has come up (i.e. we are missing the trailing ``RA''), the new pool bets on ``RA'' instead of ``AB''. That will mean a different terminal payoff if ``RA'' does show up, right?
 
-The problem arises if the roulette wheel spits out \emph{another relevant letter}, say ``R''. Then while we are back to \$0 and have to restart, with the original strategy there will be two threads that are still ``in the money''. And if the following letter is ``A'', these two threads will profit, whereas in our case, we would have made only \$1. By deviating from the prescribed strategy, the terminal strategy is now non-deterministic.
+While that is true on the surface, we need to consider the two other possibilities. If the next two letters are something completely useless, say ``YZ'', then both strategies are wiped out. The problem arises if the roulette wheel spits out \emph{relevant letters}, say ``AB''. Then while we are back to \$0 and have to restart, with the original strategy the supposed ``AB'' pool wil be ``in the money''. But here that pool is dead! Taking the idea one step further, if \textit{RACADABRA} follows and the game, where the lucky pool should have made \$$26^{11}$, it is now bust. By deviating from the prescribed strategy, we made the terminal strategy non-deterministic. Our simple math is now invalid.
 
 Therefore, each sub-strategy should be independent and we should ``stick to the program''. This ensures that the terminal payoff is fixed and can easily be tallied.
 
 \subsection{Just for fun...}
-I found a brainteaser on \href{https://www.theguardian.com/science/2023/mar/20/can-you-solve-it-the-infinite-monkey-theorem}{The Guardian} that asks whether the expected time for a monkey to get ``ABRACADABRA'' or ``ABRACADABRX'' is longer. The answer is that ``ABRACADABRX'' takes \emph{shorter time} than ``ABRACADABRA'' in expectation! 
+I found a brainteaser on \href{https://www.theguardian.com/science/2023/mar/20/can-you-solve-it-the-infinite-monkey-theorem}{The Guardian} that asks whether the expected time for a monkey to get ``ABRACADABRA'' or ``ABRACADABRX'' is shorter. The answer is that ``ABRACADABRX'' takes \emph{shorter time} than ``ABRACADABRA'' in expectation! 
 
-As mentioned above, any failure to get the last ``A'' resets the game, but failing to get ``X'' and getting ``A'' instead leaves us still four letters in! We can also see that ``ABRACADBRA'' gives higher terminal earnings if we follow the same strategy. This also means that ``AAAAAAA'' will come up less frequently than ``ABCDEFG''.
+The simple answer is any failure to get the last ``A'' resets the game, but failing to get ``X'' and getting ``A'' instead leaves us still four letters in! If we apply the same gambling strategy to both target strings, we can also see that ``ABRACADBRA'' gives higher terminal earnings if we follow the same strategy. Therefore ``ABRACADABRA'' must take a longer expected time to appear. By the exact same logic, ``AAAAAAA'' necessarily comes up less frequently than ``ABCDEFG''.
 
-If the last result seems counter-intuitive, it might be because we implicitly allowed the monkey to deviate from truly random gibberish. Indeed, if we ask a real monkey to do something with the keyboard, \href{https://www.bbc.co.uk/devon/news_features/2003/monkey_words.shtml}{it's likely to type a lot of ``S'''s}. However, the problem assumes that the hypothetical monkey has no knowledge of the past and faithfully picks each new character \emph{independently} at random. Randomizing over monkeys rather than observing a monkey's random output leads to what is formally known as Algorithmic probability (\cite{Hutter:2007}), under which simpler strings are likely as one might expect.
+If the last result seems counter-intuitive, it might be because we implicitly allowed the monkey to deviate from truly random gibberish. Indeed, if we ask pick a random real monkey to do something with the keyboard, \href{https://www.bbc.co.uk/devon/news_features/2003/monkey_words.shtml}{it's likely to type a lot of ``S'''s}. However, the problem assumes that the hypothetical monkey has no knowledge of the past and faithfully picks each new character \emph{independently} at random, just like the roulette wheel. Therein lies the problem: we're not supposed to random over monkeys! By doing so, we are calculating what is formally known as the ``algorithmic probability'' (\cite{Hutter:2007}), under which simpler strings are given a higher likelihood, as one might expect, than ``classical probability''.
 
 \section{HHT vs HTT}
 \textit{We toss fair coins until either $HHT$ or $HTT$ is obtained. What is the expected number of rounds before this game ends?}
 
-Since there are now two end states, $W_\tau$ is not deterministic. Therefore, we need to first find the probability of ending on $HHT$ or $HTT$.
+Since there are now two end states, $W_\tau$ is not deterministic (but can be independent of $\tau$ regardless of outcome). To calculate $\E(W_\tau)$, we therefore need to first find the probability of ending on $HHT$ or $HTT$.
 
 \subsection{Probability of each outcome}
 This sub-problem can be solved in many ways but they all boil down to analyzing the Markov Chain. Consider when a $H$ appears with no $H$'s preceding it; any history before this point does not matter. Now, to get to $HTT$, we need two more $T$'s, but if the next toss is $H$, we are doomed. On a $TH$ we restart at a single $H$. Thus 
@@ -232,10 +240,10 @@ While there are two outcomes to gamble towards, we can actually pick one, say $H
 Thus 
 \begin{align*}
 \E(\tau) &= \E(W_\tau) \\
-&= p\times \E(\tau\mid HHT) + (1-p)\times \E(\tau\mid HTT) \\
+&= p\times \E(W_\tau\mid HHT) + (1-p)\times \E(W_\tau\mid HTT) \\
 &=\frac{2}{3} \times 8 + \frac{1}{3} \times 0 = \boxed{\frac{16}{3}}
 \end{align*}
-
+\textit{Exercise: Bet towards $HTT$ instead and verify that the same answer is obtained.}
 \subsection{Verification}
 We can write a short Python script - see \texttt{hht.py}. Alternatively, using the Markov Chain itself and denoting by $\E(\tau\mid X)$ the expected \emph{extra} number of steps given event $X$,
 \begin{align*}
@@ -243,19 +251,19 @@ We can write a short Python script - see \texttt{hht.py}. Alternatively, using t
 \E(\tau\mid H) &= 1 + \frac{1}{2}\left(\E(\tau\mid HH) + \E(\tau\mid HT)\right) \\
 \E(\tau\mid HH) &= 2, \;\E(\tau\mid HT) = 1 + \frac{\E(\tau\mid H)}{2} \\
 \therefore \E(\tau\mid H) &= 1 + \frac{2 + 1 + 0.5\E(\tau\mid H)}{2} = \frac{5}{2} + \frac{\E(\tau\mid H)}{4} \\
-\implies \E(\tau\mid H) &= \frac{10}{3} \\
+\E(\tau\mid H) &= \frac{10}{3} \\
 \implies\E(\tau) &= \E(\tau\mid H) + 2 = \boxed{\frac{16}{3}}
 \end{align*}
 
 \subsection{Backstory}
-This problem originated in Summer 2019 (!) and a simulation script (\texttt{hht.py}) followed, but it took me until Mid-2023 to work the details out to my heart's content (and another year to put it into \LaTeX). The original problem from Jane Street is \href{https://www.glassdoor.com/Interview/Flip-a-coin-until-either-HHT-or-HTT-appears-Is-one-more-likely-to-appear-first-If-so-which-one-and-with-what-probabili-QTN_46824.htm}{very old}, and it only asked for the probability of the game ending with \textit{HHT} rather than \textit{HTT}, and I worked it out with standard methods in my Freshman year to prepare for an interview with Akuna Capital for an internship the following summer.
+This problem originated in Summer 2019 (!) and a simulation script (\texttt{hht.py}) followed, but it took me until Mid-2023 to work out the martingale solution (and another year to clean it up into \LaTeX). The original problem from Jane Street is \href{https://www.glassdoor.com/Interview/Flip-a-coin-until-either-HHT-or-HTT-appears-Is-one-more-likely-to-appear-first-If-so-which-one-and-with-what-probabili-QTN_46824.htm}{very old}, and only asked for the probability of the game ending with $HHT$ rather than $HTT$. I worked it out with standard methods in my Freshman year to prepare for an interview with Akuna Capital for an internship the following summer.
 
-During the actual interview, I was asked over the phone to simulate an unfair coin with $p = \frac{2}{3}$ of showing up as heads with fair coins. I was like ``Bingo!'' and gave the stupid answer of flipping them until either \textit{HHT} or \textit{HTT} appeared. Of course, I could have said something easier like flipping the coins twice at a time, ignoring \textit{HH}'s and assigning the other three outcomes accordingly (as suggested \href{https://mindyourdecisions.com/blog/2017/01/01/can-you-solve-it-use-a-coin-to-simulate-any-probability-sunday-puzzle/}{here}).
+During the actual interview, I was asked over the phone to simulate an unfair coin with $p = \frac{2}{3}$ of showing up as heads with fair coins. I was like ``Bingo!'' and gave the stupid answer of flipping them until either $HHT$ or $HTT$ appeared. Of course, I could have said something easier like flipping the coins twice at a time, ignoring \textit{HH}'s and assigning the other three outcomes accordingly (as suggested \href{https://mindyourdecisions.com/blog/2017/01/01/can-you-solve-it-use-a-coin-to-simulate-any-probability-sunday-puzzle/}{here}).
 
-My interviwer at Akuna was understandably bemused, but he pressed on with the impromptu question of how long I would expect to flip before getting a head or tail using my method. I tried to work out the Markov Chain over the phone but he kept saying there was a ``much simpler way''. Eventually I ran out of time and said that the answer was between 4 and 5. He asked me to pick one of the two and I said ``4''. I didn't get the internship, and to this day I don't know which method he had in mind. Hopefully it was the martingale solution!
+My interviwer at Akuna was understandably bemused, but he pressed on with the impromptu question of how long I would expect to flip before getting a head or tail using my method. I tried to work out the Markov Chain over the phone but he kept saying there was a ``much simpler way''. Eventually I ran out of time and said that the answer was between 4 and 5. He asked me to pick one of the two and I said ``4''. I didn't get the internship, and to this day I don't know which method he had in mind. Hopefully it was the solution by gambling!
 
 \section{A Biased Random Walk}
-The gambler now tosses an \emph{unfair} coin each round that shows up as heads with probability $\frac{2}{3}$ and tails with probability $1 - \frac{2}{3} = \frac{1}{3}$. The game ends when the total earnings $S_n$ reaches $S_n = 5$ or $S_n = -3$. We want to find, as usual, the expected stopping time $\E(\tau) := \E(\min\{n\mid S_n = 5 \text{ or } S_n = -3\})$. Since there are again two possible outcomes, we start by finding the probability of each.
+Lastly, suppose we repeatedly toss an \emph{unfair} coin that shows up as heads with probability $\frac{2}{3}$ and tails with probability $1 - \frac{2}{3} = \frac{1}{3}$. The game ends when $S_n := \{\#H - \#T\text{ at round }n\}$ satisfies $S_n = 5$ or $S_n = -3$. We want to find, as usual, the expected stopping time $\E(\tau) := \E(\min\{n\mid S_n = 5 \text{ or } S_n = -3\})$. Since there are again two possible outcomes, we start by finding the probability of each.
 
 \subsection{Probability of each outcome}
 The method here was introduced in Problem 36 ``Gambler's Ruin' of \cite{mosteller1987fifty}. There is a solution using exponential martingales but I find the one here more intuitive (the math is the same).
@@ -267,15 +275,15 @@ Next, because each cumulative step down or up is independent, the probability of
 \begin{align*}
 P(\text{Reach $S_n = -3$}) &= p \times P(\text{Reach $S_n = -3$ after $S_n = 5$}) + (1-p) \\
 \frac{1}{8} &= p\times\frac{1}{256} + (1-p) \\
-\therefore p &= \frac{224}{255}
+\therefore P(S_\tau=5) &= \frac{224}{255}
 \end{align*}
 
 \subsection{A cautious gambler}
-How much the gambler puts in has been suggested to us by the problem: he will cautiously put in \$1 each turn and just wager that \$1. In fact, we can't bet with our accumulated earnings in the ``threads'' approach because now the last few tosses before the game ends are not known. 
+Let's try to follow the same approach. Since the coin is now unfair, the casino will pay \$$\frac{3}{2}$ for calling and getting $H$, \$3 for calling and getting $T$, and \$0 for getting either call wrong. 
 
-Since the coin is now unfair, the casino will pay \$$\frac{3}{2}$ for calling and getting $H$, \$3 for calling and getting $T$, and \$0 for getting it wrong. But our gambler will just bet $H$ all the time to simplify calculations. We know from simple maths that if the game ends at time $\tau$ with $S_\tau = 5$, then $\#H = \frac{\tau+5}{2}$, and if $S_\tau = -3$, then $\#H = \frac{\tau-3}{2}$. Therefore, taking into the payoff,
+How much the gambler puts in has been suggested to us by the problem: he will cautiously put in \$1 each turn and just wager that \$1. In fact, we can't bet all our accumulated earnings in the ``threads'' approach because now the history before the game ends is random. Instead, our gambler will just bet \$1 on $H$ every turn. Using this simple strategy, we see that if the game ends at some valid $\tau$ with $S_\tau = 5$, then $\#H = \frac{\tau+5}{2}$, and if $S_\tau = -3$, then $\#H = \frac{\tau-3}{2}$. Taking into account the payoff odds,
 \begin{align*}
-\E(W_\tau) &= p\left(\frac{\E(\tau\mid S_\tau=5)+5}{2} \times \frac{3}{2}\right) + (1-p)\left(\frac{\E(\tau\mid S_\tau=-3)-3}{2} \times \frac{3}{2}\right) \\
+\E(W_\tau) = \E_X(g_X(\E(\tau\mid X))) &= p\left(\frac{\E(\tau\mid S_\tau=5)+5}{2} \times \frac{3}{2}\right) + (1-p)\left(\frac{\E(\tau\mid S_\tau=-3)-3}{2} \times \frac{3}{2}\right) \\
 &= \frac{3}{4}\left(p\times\E(\tau\mid S_\tau=5) + (1-p)\times\E(\tau\mid S_\tau=-3)\right) + \frac{15}{4}p - \frac{9}{4} (1-p) \\
 &= \frac{3}{4}\E(\tau) + 6p - \frac{9}{4} \\
 &= \E(\tau) \\
@@ -283,9 +291,12 @@ Since the coin is now unfair, the casino will pay \$$\frac{3}{2}$ for calling an
 &= \boxed{\frac{1027}{85}} \approx 12.08
 \end{align*}
 
+\subsection{Weird Odds}
+Say the casino pays instead \$3 for calling and getting $H$ with \$1 (for a \$2 total profit), but demands \emph{an extra \$3} if a $T$ comes up (in addition to the \$1 put in, for a \$4 total loss). This is still a fair game: $3\times \frac{2}{3} - 3\times\frac{1}{3} = 1$, equalling what was put in. No real casino will allow you to lose more than you invested, but such artificial odds contrive to make $W_\tau$ independent of $\tau$! Notice now that when $S_\tau = 5$, all the earnings from the $H$'s and $T$'s cancel out except for the 5 extra $H$'s, so $W_\tau = 5 \times 3 = 15$. Similarly, $W_\tau = -3 \times 3 = -9$ when $S_\tau = -3$. Therefore, $$\E(\tau) = 15p + (-9)(1-p) = 24p - 9 = \boxed{\frac{1027}{85}}$$
+
 
 \subsection{Verification}
-One can easily write a Python script like I did for the previous problem. We could also solve the recurrence relations directly, which amounts to inverting the matrix that defines a linear system of equations. There's a fancier but impractical method of solving the recurrence relations with generating functions \cite{wilf2014generatingfunctionology} which I \emph{do not recommend}.
+One can easily write a Python script like I did for the previous problem. We could also solve the recurrence relations directly, which amounts to inverting the matrix that defines a linear system of equations. There's a fancier but impractical method of solving the recurrence relations with generating functions \cite{wilf2014generatingfunctionology} which I \emph{do not recommend} (apologies \href{https://www.wolframalpha.com/input?i=3rd+derivative+of+1%2F6+*+%28-3%28-1538x%2F255%2Bx%5E2+%2B+x%5E3+%2B+x%5E4%2Bx%5E5%2Bx%5E6%2Bx%5E7%2Bx%5E8-247x%5E9%2F255%29%2F%28x%5E2-3x%2B2%29%29+evaluated+at+x+%3D+0}{WolframAlpha}).
 
 \newpage
 \printbibliography
